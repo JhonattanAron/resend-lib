@@ -7,8 +7,11 @@ export interface ResendMailerConfig {
   resendOptions?: ResendOptions;
 }
 
-export type SendEmailInput = Omit<CreateEmailOptions, "from"> & { from?: string };
-export type SendBatchEmailInput = Omit<CreateBatchEmailOptions, "from"> & { from?: string };
+/** Preserve Resend's mutually exclusive render/template option variants. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+export type SendEmailInput = DistributiveOmit<CreateEmailOptions, "from"> & { from?: string };
+export type SendBatchEmailInput = DistributiveOmit<CreateBatchEmailOptions, "from"> & { from?: string };
 
 export class ResendMailerError extends Error {
   constructor(message: string, readonly code?: string, readonly statusCode?: number, options?: ErrorOptions) {
@@ -45,7 +48,10 @@ export class ResendMailer {
   /** Send up to the batch size allowed by Resend. Attachments are not supported by its batch endpoint. */
   async sendBatch(inputs: SendBatchEmailInput[], options?: { idempotencyKey?: string; batchValidation?: "strict" | "permissive" }) {
     if (inputs.length === 0) throw new Error("At least one email is required");
-    const emails = inputs.map(({ from, ...message }) => ({ ...message, from: from ?? this.defaultFrom }));
+    const emails: CreateBatchEmailOptions[] = inputs.map((input) => ({
+      ...input,
+      from: input.from ?? this.defaultFrom,
+    }) as CreateBatchEmailOptions);
     const { data, error } = await this.client.batch.send(emails, options);
     if (error) {
       throw new ResendMailerError(error.message, error.name, error.statusCode ?? undefined, { cause: error });
