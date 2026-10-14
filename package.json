@@ -1,0 +1,19 @@
+{
+  "name": "@jhonattanaron/resend-lib",
+  "version": "1.0.0",
+  "description": "Reusable Resend email sending client with optional NestJS integration",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {"types": "./dist/index.d.ts", "import": "./dist/index.js"},
+    "./nestjs": {"types": "./dist/nestjs/index.d.ts", "import": "./dist/nestjs/index.js"}
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {"build": "tsc -p tsconfig.json", "prepare": "npm run build"},
+  "dependencies": {"resend": "^6.14.0"},
+  "peerDependencies": {"@nestjs/common": ">=10.0.0"},
+  "devDependencies": {"@nestjs/common": "^11.0.0", "@types/node": "^22.0.0", "typescript": "^5.7.0"},
+  "engines": {"node": ">=20"}
+}
